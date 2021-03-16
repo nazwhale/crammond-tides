@@ -4,7 +4,10 @@ import { Stack, Heading, Box, Text, ListItem, UnorderedList, Stat,
   StatNumber,
   StatHelpText,
   StatArrow,
-  StatGroup, Tooltip, Skeleton, Link } from "@chakra-ui/react"
+  StatGroup, Skeleton, Link, Alert, Flex,
+  AlertIcon,
+  AlertTitle,
+  AlertDescription, } from "@chakra-ui/react"
 
 // type DataItem = {
 //   @id: string
@@ -12,6 +15,9 @@ import { Stack, Heading, Box, Text, ListItem, UnorderedList, Stat,
 //   measure: string
 //   value: float
 // }
+
+const UNDERWATER_VALUE = -0.8
+const DANGER_VALUE = -1.1
 
 const listItemStyles = {
   fontSize: 24, // For the bullets
@@ -69,12 +75,21 @@ const IndexPage = () => {
                   </StatHelpText>
                 </Skeleton>
             ) : (
-                <>
-              <StatNumber><Tooltip hasArrow label="Values of less than -0.8 are considered safe to cross" bg="gray.300" color="gray.800">{getCanCross(data) ? "Yes" : "No" }</Tooltip></StatNumber>
-              <StatHelpText>
-              <StatArrow type={getIsComingIn(data) ? "increase" : "decrease" } color="blue.400"/>
-            {getIsComingIn(data) ? "Tide is coming in" : "Tide is going out" }
-              </StatHelpText>
+              <>
+                <StatNumber>{canCross(data) ? "Yes" : "No" }</StatNumber>
+                <StatHelpText>
+                  <StatArrow type={isComingIn(data) ? "increase" : "decrease" } color="blue.400"/>
+                  {isComingIn(data) ? "Tide is coming in" : "Tide is going out" }
+                </StatHelpText>
+                {showSoonUnderwaterWarning(data) &&
+                <Alert status="warning" variant="left-accent">
+                  <AlertIcon/>
+                  <Flex direction={["column", "column", "row", "row"]}>
+                    <AlertTitle>Crossing will soon be underwater.</AlertTitle>
+                    <AlertDescription>Get back to mainland!</AlertDescription>
+                  </Flex>
+                </Alert>
+                }
               </>
 
               )}
@@ -93,7 +108,7 @@ const IndexPage = () => {
         data.map(item => (
           <ListItem key={item.dateTime} style={{ ...listItemStyles, color: getValueColor(item.value) }}>
             <Stat color="gray.800">
-              <StatNumber fontSize="md"><Link href={item.measure}>{item.value}</Link></StatNumber>
+              <StatNumber fontSize="md"><Link href={item.measure}>{item.value.toFixed(2)}</Link></StatNumber>
               <StatHelpText>{formatDateTime(item.dateTime)}</StatHelpText>
             </Stat>
           </ListItem>
@@ -114,24 +129,41 @@ const IndexPage = () => {
   )
 }
 
-function getCanCross(data) {
+function canCross(data) {
   // Check if the latest reading was below -0.8
   // If so, you can cross
   const latestItem = data[0]
-  const canCross = latestItem.value <= -0.8
-  return canCross
+  return latestItem.value <= UNDERWATER_VALUE
 }
 
-function getIsComingIn(data) {
+function isComingIn(data) {
   // Figure out if the tide is going in or out
   const latestItem = data[0]
   const oneItemBack = data[1]
-  const isComingIn = latestItem.value >= oneItemBack.value
-  return isComingIn
+  return latestItem.value >= oneItemBack.value
+}
+
+function showSoonUnderwaterWarning(data) {
+  // If you can't cross at all, we don't need the warning
+  if (!canCross(data)) {
+    return false
+  }
+
+  // If the tide is going out, we're fine
+  if (!isComingIn(data)) {
+    return false
+  }
+
+  // If you can cross and the tide is coming in, we might be in trouble.
+  // Figure out if the crossing will soon be underwater
+  const latestItem = data[0]
+  const isSoonUnderwater = latestItem.value >= (DANGER_VALUE)
+
+  return isSoonUnderwater
 }
 
 function getValueColor(value) {
-  return (value <= -0.8) ?  "#48BB78" : "#F56565"
+  return (value <= UNDERWATER_VALUE) ?  "#48BB78" : "#F56565"
 }
 
 function formatDateTime(dt) {
@@ -142,7 +174,7 @@ function formatDateTime(dt) {
   const minutes = d.getMinutes()
   const leadingHourZero = d.getHours() < 10 ? '0': '' // javascript is ridiculous
   const leadingMinuteZero = d.getMinutes() < 10 ? '0': '' // javascript is ridiculous
-  return `${leadingHourZero}${hours}${leadingMinuteZero}${minutes}, ${da} ${mo}`
+  return `${leadingHourZero}${hours}:${leadingMinuteZero}${minutes}, ${da} ${mo}`
 }
 
 export default IndexPage
