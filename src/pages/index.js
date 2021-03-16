@@ -47,7 +47,7 @@ const IndexPage = () => {
       <Heading><span role="img" aria-label="scottish flag">🏴󠁧󠁢󠁳󠁣󠁴󠁿</span>󠁧󠁢󠁳󠁣󠁴󠁿 Crammond Island Crossing Checker</Heading>
       <a
           style={linkStyle}
-          href={`https://environment.data.gov.uk/flood-monitoring/id/stations/E70839.html`}
+          href={`https://environment.data.gov.uk/flood-monitoring/tidegauge/index.html#filter=7&station=E70839`}
       >
         <Text>
         <span role="img" aria-label="data">🗼</span>
