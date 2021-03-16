@@ -100,7 +100,7 @@ const IndexPage = () => {
       <Box>
       <Heading size="sm">Latest tide values</Heading>
       <Text as="i" fontSize="sm" opacity="0.8">
-        Crossing is possible when the tide value is below ${UNDERWATER_VALUE}
+        Crossing is possible when the tide value is below {UNDERWATER_VALUE}
       </Text>
 
       <UnorderedList mt={2}>
