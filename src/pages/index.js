@@ -72,7 +72,7 @@ const IndexPage = () => {
                 <>
               <StatNumber><Tooltip hasArrow label="Values of less than -0.8 are considered safe to cross" bg="gray.300" color="gray.800">{getCanCross(data) ? "Yes" : "No" }</Tooltip></StatNumber>
               <StatHelpText>
-              <StatArrow type={getIsComingIn(data) ? "decrease" : "increase" } color="blue.400"/>
+              <StatArrow type={getIsComingIn(data) ? "increase" : "decrease" } color="blue.400"/>
             {getIsComingIn(data) ? "Tide is coming in" : "Tide is going out" }
               </StatHelpText>
               </>
