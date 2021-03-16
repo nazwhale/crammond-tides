@@ -1,108 +1,148 @@
 import * as React from "react"
-import { Heading } from "@chakra-ui/react"
+import {useEffect, useState} from "react";
+import { Stack, Heading, Box, Text, ListItem, UnorderedList, Stat,
+  StatNumber,
+  StatHelpText,
+  StatArrow,
+  StatGroup, Tooltip, Skeleton, Link } from "@chakra-ui/react"
 
-// styles
-const pageStyles = {
-  color: "#232129",
-  padding: 96,
-}
+// type DataItem = {
+//   @id: string
+//   dateTime: string
+//   measure: string
+//   value: float
+// }
 
-const listStyles = {
-  marginBottom: 96,
-  paddingLeft: 0,
-}
 const listItemStyles = {
-  fontWeight: 300,
-  fontSize: 24,
+  fontSize: 24, // For the bullets
   maxWidth: 560,
   marginBottom: 30,
 }
 
 const linkStyle = {
   color: "#8954A8",
-  fontWeight: "bold",
-  fontSize: 16,
-  verticalAlign: "5%",
 }
 
-const docLinkStyle = {
-  ...linkStyle,
-  listStyleType: "none",
-  marginBottom: 24,
-}
-
-const descriptionStyle = {
-  color: "#232129",
-  fontSize: 14,
-  marginTop: 10,
-  marginBottom: 0,
-  lineHeight: 1.25,
-}
-
-const docLink = {
-  text: "Documentation",
-  url: "https://www.gatsbyjs.com/docs/",
-  color: "#8954A8",
-}
-
-const badgeStyle = {
-  color: "#fff",
-  backgroundColor: "#088413",
-  border: "1px solid #088413",
-  fontSize: 11,
-  fontWeight: "bold",
-  letterSpacing: 1,
-  borderRadius: 4,
-  padding: "4px 6px",
-  display: "inline-block",
-  position: "relative",
-  top: -2,
-  marginLeft: 10,
-  lineHeight: 1,
-}
-
-// data
-const links = [
-  {
-    text: "Tutorial",
-    url: "https://www.gatsbyjs.com/docs/tutorial/",
-    description:
-      "A great place to get started if you're new to web development. Designed to guide you through setting up your first Gatsby site.",
-    color: "#E95800",
-  },
-]
-
-// markup
 const IndexPage = () => {
+  const [data, setData] = useState(null);
+
+  useEffect(() => {
+    const getData = async () => {
+      const request = await fetch("https://environment.data.gov.uk/flood-monitoring/id/stations/E70839/readings.json?_limit=100&_sorted");
+      const data = await request.json();
+      setData(data.items)
+    };
+
+    if (data == null) {
+      getData()
+    }
+  })
+
   return (
-    <main style={pageStyles}>
+    <Box as="main" margin={[4, 50, 50, 100]}>
       <title>Home Page</title>
-      <Heading>Crammondo </Heading>
-      <ul style={listStyles}>
-        <li style={docLinkStyle}>
-          <a
-            style={linkStyle}
-            href={`${docLink.url}?utm_source=starter&utm_medium=start-page&utm_campaign=minimal-starter`}
-          >
-            {docLink.text}
-          </a>
-        </li>
-        {links.map(link => (
-          <li key={link.url} style={{ ...listItemStyles, color: link.color }}>
-            <span>
-              <a
-                style={linkStyle}
-                href={`${link.url}?utm_source=starter&utm_medium=start-page&utm_campaign=minimal-starter`}
-              >
-                {link.text}
-              </a>
-              <p style={descriptionStyle}>{link.description}</p>
-            </span>
-          </li>
-        ))}
-      </ul>
-    </main>
+
+    <Stack spacing={8}>
+      <Box>
+      <Heading><span role="img" aria-label="scottish flag">🏴󠁧󠁢󠁳󠁣󠁴󠁿</span>󠁧󠁢󠁳󠁣󠁴󠁿 Crammond Island Crossing Checker</Heading>
+      <a
+          style={linkStyle}
+          href={`https://environment.data.gov.uk/flood-monitoring/id/stations/E70839.html`}
+      >
+        <Text>
+        <span role="img" aria-label="data">🗼</span>
+        Data source
+        </Text>
+      </a>
+      </Box>
+
+      <Box>
+        <StatGroup>
+          <Stat>
+            <Heading size="sm" mb={2}>Can I cross?</Heading>
+            {data == null ? (
+                <Skeleton w="fit-content">
+                  <StatNumber>Yes</StatNumber>
+                  <StatHelpText>
+                    <StatArrow type="decrease" color="blue.400"/>
+                    "Tide is coming in"
+                  </StatHelpText>
+                </Skeleton>
+            ) : (
+                <>
+              <StatNumber><Tooltip hasArrow label="Values of less than -0.8 are considered safe to cross" bg="gray.300" color="gray.800">{getCanCross(data) ? "Yes" : "No" }</Tooltip></StatNumber>
+              <StatHelpText>
+              <StatArrow type={getIsComingIn(data) ? "decrease" : "increase" } color="blue.400"/>
+            {getIsComingIn(data) ? "Tide is coming in" : "Tide is going out" }
+              </StatHelpText>
+              </>
+
+              )}
+          </Stat>
+        </StatGroup>
+      </Box>
+
+      <Box>
+      <Heading size="sm">Latest data points</Heading>
+      <Text as="i" fontSize="sm" opacity="0.8">
+        Values below -0.8 are safe for crossing
+      </Text>
+
+      <UnorderedList mt={2}>
+        {data != null && (
+        data.map(item => (
+          <ListItem key={item.dateTime} style={{ ...listItemStyles, color: getValueColor(item.value) }}>
+            <Stat color="gray.800">
+              <StatNumber fontSize="md"><Link href={item.measure}>{item.value}</Link></StatNumber>
+              <StatHelpText>{formatDateTime(item.dateTime)}</StatHelpText>
+            </Stat>
+          </ListItem>
+        ))
+        )}
+      </UnorderedList>
+      </Box>
+
+      {data != null && (
+          <Box mb={8}>
+      <Text as="i" fontSize="sm" opacity="0.8">
+        We display the latest 100 data points
+      </Text>
+      </Box>
+      )}
+    </Stack>
+    </Box>
   )
+}
+
+function getCanCross(data) {
+  // Check if the latest reading was below -0.8
+  // If so, you can cross
+  const latestItem = data[0]
+  const canCross = latestItem.value <= -0.8
+  return canCross
+}
+
+function getIsComingIn(data) {
+  // Figure out if the tide is going in or out
+  const latestItem = data[0]
+  const oneItemBack = data[1]
+  const isComingIn = latestItem.value >= oneItemBack.value
+  return isComingIn
+}
+
+function getValueColor(value) {
+  return (value <= -0.8) ?  "#48BB78" : "#F56565"
+}
+
+function formatDateTime(dt) {
+  const d = new Date(dt)
+  const mo = new Intl.DateTimeFormat('en', { month: 'long' }).format(d);
+  const da = new Intl.DateTimeFormat('en', { day: '2-digit' }).format(d);
+  const hours = d.getHours()
+  const minutes = d.getMinutes()
+  const leadingHourZero = d.getHours() < 10 ? '0': '' // javascript is ridiculous
+  const leadingMinuteZero = d.getMinutes() < 10 ? '0': '' // javascript is ridiculous
+  return `${leadingHourZero}${hours}${leadingMinuteZero}${minutes}, ${da} ${mo}`
 }
 
 export default IndexPage

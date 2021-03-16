@@ -1,6 +1,7 @@
 module.exports = {
   siteMetadata: {
-    title: "Crammond Tides",
+    title: "Crammond Tide Checker",
+    siteUrl: `https://www.crammondtides.netlify.app`,
   },
   plugins: [
     {
