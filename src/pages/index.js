@@ -16,8 +16,8 @@ import { Stack, Heading, Box, Text, ListItem, UnorderedList, Stat,
 //   value: float
 // }
 
-const UNDERWATER_VALUE = -0.8
-const DANGER_VALUE = -1.1
+const UNDERWATER_VALUE = -0.80
+const DANGER_VALUE = -1.10
 
 const listItemStyles = {
   fontSize: 24, // For the bullets
@@ -100,7 +100,7 @@ const IndexPage = () => {
       <Box>
       <Heading size="sm">Latest tide values</Heading>
       <Text as="i" fontSize="sm" opacity="0.8">
-        Values below -0.8 are safe for crossing
+        Crossing is possible when the tide value is below ${UNDERWATER_VALUE}
       </Text>
 
       <UnorderedList mt={2}>
