@@ -39,10 +39,10 @@ const IndexPage = () => {
   })
 
   return (
-    <Box as="main" margin={[4, 50, 50, 100]}>
+    <Box as="main" marginX={[4, 50, 50, 100]} marginY={[4, 50, 50, 70]}>
       <title>Home Page</title>
 
-    <Stack spacing={8}>
+    <Stack spacing={12}>
       <Box>
       <Heading><span role="img" aria-label="scottish flag">🏴󠁧󠁢󠁳󠁣󠁴󠁿</span>󠁧󠁢󠁳󠁣󠁴󠁿 Crammond Island Crossing Checker</Heading>
       <a
