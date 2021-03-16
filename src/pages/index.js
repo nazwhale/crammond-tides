@@ -83,7 +83,7 @@ const IndexPage = () => {
       </Box>
 
       <Box>
-      <Heading size="sm">Latest data points</Heading>
+      <Heading size="sm">Latest tide values</Heading>
       <Text as="i" fontSize="sm" opacity="0.8">
         Values below -0.8 are safe for crossing
       </Text>
@@ -105,7 +105,7 @@ const IndexPage = () => {
       {data != null && (
           <Box mb={8}>
       <Text as="i" fontSize="sm" opacity="0.8">
-        We display the latest 100 data points
+        We display the latest 100 tide values
       </Text>
       </Box>
       )}
