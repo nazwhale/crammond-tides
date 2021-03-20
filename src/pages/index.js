@@ -85,7 +85,7 @@ const options = {
     xAxes: [
       {
         ticks: {
-          maxTicksLimit: 40,
+          maxTicksLimit: 10,
         },
       },
     ],
@@ -99,7 +99,7 @@ const options = {
         scaleLabel: {
           display: true,
           labelString: "👈 going out —️ coming in 👉",
-          fontSize: 14,
+          fontSize: 12,
         },
       },
     ],
